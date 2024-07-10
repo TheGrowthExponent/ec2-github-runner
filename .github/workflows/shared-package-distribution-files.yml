@@ -1,6 +1,10 @@
 name: (shared) Package distribution files
 
 on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
   workflow_call:
 
 jobs:
@@ -9,14 +13,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Get current branch name
         id: get-current-branch-name
         uses: ./.github/actions/get-current-branch-name
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
       - name: Install packages
         run: npm ci
+
+      - name: Run linter
+        run: npm run lint
 
       - name: Package
         run: npm run package
